@@ -13,6 +13,7 @@ import sit.int204.quizappapi.utils.ListMapper;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {

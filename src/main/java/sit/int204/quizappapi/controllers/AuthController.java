@@ -5,12 +5,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sit.int204.quizappapi.dtos.user.CheckAuthRequest;
 import sit.int204.quizappapi.dtos.user.SimpleUserDto;
 import sit.int204.quizappapi.dtos.user.UserAuthRequest;
 import sit.int204.quizappapi.entities.User;
 import sit.int204.quizappapi.services.UserService;
 import sit.int204.quizappapi.utils.ListMapper;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -26,9 +28,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<SimpleUserDto> login(@Valid @RequestBody UserAuthRequest user) {
-        User authenticateUser = userService.authenticateUser(user);
-        return ResponseEntity.ok(modelMapper.map(authenticateUser, SimpleUserDto.class));
+    public ResponseEntity<SimpleUserDto> login(@Valid @RequestBody UserAuthRequest authRequest) {
+        User authenticatedUser = userService.authenticateUser(authRequest);
+        return ResponseEntity.ok(modelMapper.map(authenticatedUser, SimpleUserDto.class));
+    }
+
+    @PostMapping("/check-auth")
+    public ResponseEntity<SimpleUserDto> checkAuth(@Valid @RequestBody CheckAuthRequest authRequest) {
+        User authenticatedUser = userService.findById(authRequest.getUserId());
+        return ResponseEntity.ok(modelMapper.map(authenticatedUser, SimpleUserDto.class));
     }
 
 //    @PostMapping("/refresh-token")

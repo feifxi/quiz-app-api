@@ -79,7 +79,7 @@ public class UserService {
 
         User existUser = userRepository.findByEmail(user.getEmail());
         if (existUser == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This user is not register yet");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This email is not register yet");
         }
         if (existUser.getPassword().equals(user.getPassword())) {
             return existUser;

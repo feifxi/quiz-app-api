@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import sit.int204.quizappapi.dtos.quiz.QuizDto;
 import sit.int204.quizappapi.dtos.ResponseMessage;
 import sit.int204.quizappapi.dtos.quiz.SimpleCommentDto;
+import sit.int204.quizappapi.dtos.quiz.SimplePlayerProgressDto;
 import sit.int204.quizappapi.dtos.quiz.createQuizDto;
+import sit.int204.quizappapi.dtos.user.SimpleUserDto;
+import sit.int204.quizappapi.entities.PlayerProgress;
 import sit.int204.quizappapi.entities.Quiz;
 import sit.int204.quizappapi.services.QuizService;
 import sit.int204.quizappapi.utils.ListMapper;
@@ -19,6 +22,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/quizs")
+@CrossOrigin(origins = "*")
 public class QuizController {
     private final QuizService quizService;
     private final ModelMapper modelMapper;
@@ -40,9 +44,11 @@ public class QuizController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<QuizDto> getQuiz(@PathVariable Integer id) {
-        Quiz quiz = quizService.findById(id);
-        return ResponseEntity.ok(modelMapper.map(quiz, QuizDto.class));
+    public ResponseEntity<QuizDto> getQuiz(@PathVariable Integer id, @Valid @RequestBody SimpleUserDto user) {
+        QuizDto quiz = modelMapper.map(quizService.findById(id), QuizDto.class);
+        PlayerProgress progress = quizService.findPlayerProgress(quiz.getId(), user.getId());
+        quiz.setPlayerProgress(modelMapper.map(progress, SimplePlayerProgressDto.class));
+        return ResponseEntity.ok(quiz);
     }
 
     @GetMapping("/{id}/comments")
@@ -53,15 +59,42 @@ public class QuizController {
         );
     }
 
+    @GetMapping("/{quizId}/progress/user/{userId}")
+    public ResponseEntity<SimplePlayerProgressDto> getPlayerProgress(@PathVariable Integer quizId, @PathVariable Integer userId) {
+        return ResponseEntity.ok(modelMapper.map(quizService.findPlayerProgress(quizId, userId), SimplePlayerProgressDto.class));
+    }
+
     @PostMapping
     public ResponseEntity<QuizDto> createQuiz(@Valid @RequestBody createQuizDto quiz) {
         return ResponseEntity.ok(modelMapper.map(quizService.addQuiz(quiz), QuizDto.class));
     }
 
+    @PostMapping("/{quizId}/progress/user/{userId}")
+    public ResponseEntity<SimplePlayerProgressDto> addPlayerProgress(@PathVariable Integer quizId, @PathVariable Integer userId, @Valid @RequestBody SimplePlayerProgressDto playerProgress) {
+        PlayerProgress progress = quizService.addPlayerProgress(quizId, userId , playerProgress);
+        return ResponseEntity.ok(modelMapper.map(progress, SimplePlayerProgressDto.class));
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<SimpleCommentDto> addComment(@PathVariable Integer id, @Valid @RequestBody SimpleCommentDto comment) {
+        return ResponseEntity.ok(modelMapper.map(quizService.addComment(id, comment), SimpleCommentDto.class));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<QuizDto> updateQuiz(@Valid @PathVariable Integer id, @RequestBody createQuizDto quiz) {
+    public ResponseEntity<QuizDto> updateQuiz(@PathVariable Integer id, @Valid @RequestBody createQuizDto quiz) {
         quiz.setId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(modelMapper.map(quizService.updateQuiz(quiz), QuizDto.class));
+        return ResponseEntity.ok(modelMapper.map(quizService.updateQuiz(quiz), QuizDto.class));
+    }
+
+    @PutMapping("/{quizId}/progress/user/{userId}")
+    public ResponseEntity<SimplePlayerProgressDto> updatePlayerProgress(@PathVariable Integer quizId, @PathVariable Integer userId, @Valid @RequestBody SimplePlayerProgressDto playerProgress) {
+        PlayerProgress progress = quizService.updatePlayerProgress(quizId, userId, playerProgress);
+        return ResponseEntity.ok(modelMapper.map(progress, SimplePlayerProgressDto.class));
+    }
+
+    @PostMapping("/approve/{id}")
+    public ResponseEntity<QuizDto> approvedQuiz(@PathVariable Integer id) {
+        return ResponseEntity.status(HttpStatus.OK).body(modelMapper.map(quizService.approvedQuiz(id), QuizDto.class));
     }
 
     @DeleteMapping("/{id}")

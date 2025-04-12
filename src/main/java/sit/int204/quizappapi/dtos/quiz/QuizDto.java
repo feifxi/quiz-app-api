@@ -30,4 +30,7 @@ public class QuizDto {
     public int getReactionsCount() {
         return reactions.size();
     }
+
+    // for each own user request
+    private SimplePlayerProgressDto playerProgress;
 }
