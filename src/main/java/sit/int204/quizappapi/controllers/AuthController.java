@@ -12,7 +12,6 @@ import sit.int204.quizappapi.entities.User;
 import sit.int204.quizappapi.services.UserService;
 import sit.int204.quizappapi.utils.ListMapper;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

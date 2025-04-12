@@ -22,7 +22,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/quizs")
-@CrossOrigin(origins = "*")
 public class QuizController {
     private final QuizService quizService;
     private final ModelMapper modelMapper;
